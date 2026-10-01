@@ -55,50 +55,81 @@ type StoreData = {
 const DATA_DIR = path.join(process.cwd(), "data");
 const STORE_PATH = path.join(DATA_DIR, "painel-store.json");
 
+/** Cache em memória — obrigatório na Vercel (filesystem read-only). */
+let memoryStore: StoreData | null = null;
+let persistDisabled = false;
+
 function emptyStore(): StoreData {
   return { users: [], tenants: {}, sessions: [], pedidos: [] };
 }
 
-function ensureStore(): StoreData {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  if (!existsSync(STORE_PATH)) {
-    const seed = emptyStore();
-    // seed senzala com 20 mesas + usuário demo
-    seed.tenants.senzala = {
-      slug: "senzala",
-      nome: "Senzala Burger",
-      cidade: "Mogi das Cruzes - SP",
-      cor: "#C45C26",
-      logoUrl: null,
-      heroUrl:
-        "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80",
-      cnpj: process.env.GSMARKET_CNPJ_SENZALA ?? "12345678000199",
-      empresa: Number(process.env.GSMARKET_EMPRESA_SENZALA ?? "1") || 1,
-      chave: process.env.GSMARKET_CHAVE_SENZALA ?? process.env.GSMARKET_CHAVE ?? null,
-      mesas: Array.from({ length: 20 }, (_, i) => i + 1),
-      updatedAt: new Date().toISOString(),
-    };
-    seed.users.push({
-      id: randomBytes(8).toString("hex"),
-      email: "admin@senzala.com",
-      nome: "Admin Senzala",
-      slug: "senzala",
-      passwordHash: hashPassword("senzala123"),
-      createdAt: new Date().toISOString(),
-    });
-    writeFileSync(STORE_PATH, JSON.stringify(seed, null, 2), "utf8");
-    return seed;
-  }
+function seedStore(): StoreData {
+  const seed = emptyStore();
+  seed.tenants.senzala = {
+    slug: "senzala",
+    nome: "Senzala Burger",
+    cidade: "Mogi das Cruzes - SP",
+    cor: "#C45C26",
+    logoUrl: null,
+    heroUrl:
+      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80",
+    cnpj: process.env.GSMARKET_CNPJ_SENZALA ?? "12345678000199",
+    empresa: Number(process.env.GSMARKET_EMPRESA_SENZALA ?? "1") || 1,
+    chave:
+      process.env.GSMARKET_CHAVE_SENZALA ?? process.env.GSMARKET_CHAVE ?? null,
+    mesas: Array.from({ length: 20 }, (_, i) => i + 1),
+    updatedAt: new Date().toISOString(),
+  };
+  seed.users.push({
+    id: randomBytes(8).toString("hex"),
+    email: "admin@senzala.com",
+    nome: "Admin Senzala",
+    slug: "senzala",
+    passwordHash: hashPassword("senzala123"),
+    createdAt: new Date().toISOString(),
+  });
+  return seed;
+}
+
+function tryReadDisk(): StoreData | null {
   try {
+    if (!existsSync(STORE_PATH)) return null;
     return JSON.parse(readFileSync(STORE_PATH, "utf8")) as StoreData;
   } catch {
-    return emptyStore();
+    return null;
   }
 }
 
+function tryWriteDisk(data: StoreData): boolean {
+  if (persistDisabled) return false;
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(STORE_PATH, JSON.stringify(data, null, 2), "utf8");
+    return true;
+  } catch {
+    persistDisabled = true;
+    return false;
+  }
+}
+
+function ensureStore(): StoreData {
+  if (memoryStore) return memoryStore;
+
+  const fromDisk = tryReadDisk();
+  if (fromDisk) {
+    memoryStore = fromDisk;
+    return memoryStore;
+  }
+
+  const seed = seedStore();
+  tryWriteDisk(seed);
+  memoryStore = seed;
+  return memoryStore;
+}
+
 function saveStore(data: StoreData) {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(STORE_PATH, JSON.stringify(data, null, 2), "utf8");
+  memoryStore = data;
+  tryWriteDisk(data);
 }
 
 export function hashPassword(password: string): string {

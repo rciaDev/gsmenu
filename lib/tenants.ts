@@ -1,4 +1,3 @@
-import { Sirivennela } from "next/font/google";
 import type { TenantConfig } from "./types";
 
 /**
@@ -78,12 +77,11 @@ export function slugFromHost(host: string | null): string | null {
   if (!host) return null;
   const hostname = host.split(":")[0].toLowerCase();
 
-  // aqui verifica se o hostname é localhost, 127.0.0.1 
   if (
     hostname === "localhost" ||
-    hostname === "127.0.0.1" || 
-    hostname.endsWith(".local")
-
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".local") ||
+    hostname.endsWith(".vercel.app")
   ) {
     return null;
   }
