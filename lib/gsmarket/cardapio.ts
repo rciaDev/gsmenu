@@ -15,7 +15,7 @@ function buildFotoUrl(arq: string, barra: string): string | null {
   return `${base}/${file}.jpg`;
 }
 
-/** Normaliza código ERP (trim + remove zeros à esquerda) para join. */
+
 function normCode(raw: string): string {
   const t = raw.trim();
   if (!t) return "";
@@ -42,6 +42,8 @@ type CatBucket = { id: string; nome: string; produtos: Produto[] };
  * Cardápio LISTASITE='S' — preços via PRODUTOSPRECO (EMPRESA+PRODUTO+BARRA).
  * Categorias fixas quando der match; demais usam o nome do ERP (não descarta).
  */
+
+
 export async function fetchCardapioFromGsMarket(
   tenant: TenantRecord,
 ): Promise<CardapioResponse> {
@@ -245,7 +247,7 @@ WHERE EMPRESA = ${emp}
   }
 
   // Ordem: categorias fixas (mesmo vazias omitidas), depois demais do ERP
-  const fixasIds = new Set(CATEGORIAS_FIXAS.map((c) => c.id));
+  const fixasIds = new Set<string>(CATEGORIAS_FIXAS.map((c) => c.id));
   const categorias: Categoria[] = [
     ...CATEGORIAS_FIXAS.map((cat) => buckets.get(cat.id)!).filter(
       (b) => b.produtos.length > 0,
