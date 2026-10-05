@@ -6,6 +6,7 @@ import type { CardapioResponse, Categoria, Produto } from "@/lib/types";
 import type { TenantRecord } from "@/lib/tenants";
 import { consultaSQL, cellNum, cellStr } from "./central";
 import { getFotoBaseUrl, sqlEmp } from "./config";
+import { Sirivennela } from "next/font/google";
 
 function buildFotoUrl(arq: string, barra: string): string | null {
   const base = getFotoBaseUrl();
@@ -38,6 +39,59 @@ type BarraRow = { barra: string; barraNorm: string; principal: boolean };
 
 type CatBucket = { id: string; nome: string; produtos: Produto[] };
 
+type EmpresaInfo = {
+  nome: string | null;
+  endereco: string | null;
+};
+
+function formatEnderecoEmpresa(row: Record<string, unknown>): string | null {
+  const endereco = cellStr(row, "ENDERECO");
+  const numero = cellStr(row, "NUMERO");
+  const complemento = cellStr(row, "COMPLEMENTO");
+  const bairro = cellStr(row, "BAIRRO");
+  const cidade = cellStr(row, "CIDADE");
+  const estado = cellStr(row, "ESTADO");
+
+  const rua = [endereco, numero].filter(Boolean).join(", ");
+  const ruaComp = complemento ? `${rua} (${complemento})` : rua;
+  const cidadeUf = [cidade, estado].filter(Boolean).join(" - ");
+
+  // Ex.: RUA ITAPORA, 740 - VILA SAO JORGE DA LAGOA, CAMPO GRANDE - MS
+  let line = ruaComp;
+  if (bairro) line = line ? `${line} - ${bairro}` : bairro;
+  if (cidadeUf) line = line ? `${line}, ${cidadeUf}` : cidadeUf;
+
+  if (!line) return null;
+  const lower = line.toLocaleLowerCase("pt-BR");
+  return lower.charAt(0).toLocaleUpperCase("pt-BR") + lower.slice(1);
+}
+
+async function fetchEmpresaInfo(
+  tenant: TenantRecord,
+  emp: number | string,
+): Promise<EmpresaInfo> {
+  try {
+    const rows = await consultaSQL(
+      tenant.cnpj,
+      `
+SELECT FIRST 1
+  FANTASIA, NOME, ENDERECO, NUMERO, COMPLEMENTO,
+  BAIRRO, CIDADE, ESTADO, CEP, MESAS
+FROM EMPRESAS
+WHERE CODIGO = ${emp}
+`.trim(),
+    );
+    const row = rows[0];
+    if (!row) return { nome: null, endereco: null };
+    const fantasia = cellStr(row, "FANTASIA");
+    const nome = fantasia || cellStr(row, "NOME") || null;
+    return { nome, endereco: formatEnderecoEmpresa(row) };
+  } catch (err) {
+    console.warn("[GSMenu] EMPRESAS indisponível:", err);
+    return { nome: null, endereco: null };
+  }
+}
+
 /**
  * Cardápio LISTASITE='S' — preços via PRODUTOSPRECO (EMPRESA+PRODUTO+BARRA).
  * Categorias fixas quando der match; demais usam o nome do ERP (não descarta).
@@ -48,6 +102,7 @@ export async function fetchCardapioFromGsMarket(
   tenant: TenantRecord,
 ): Promise<CardapioResponse> {
   const emp = sqlEmp(tenant.empresa);
+  const empresaInfo = await fetchEmpresaInfo(tenant, emp);
 
   // CODIGO = chave do ERP (MESASITENS.PRODUTO / JOIN do GO). Não usar NOME.
   const sqlProdutos = `
@@ -246,7 +301,9 @@ WHERE EMPRESA = ${emp}
     });
   }
 
-  // Ordem: categorias fixas (mesmo vazias omitidas), depois demais do ERP
+  // Ordem: categorias fixas (mesmo vazias omitidas)
+  //categorias fixas: lanches, bebidas, sobremesas etc
+
   const fixasIds = new Set<string>(CATEGORIAS_FIXAS.map((c) => c.id));
   const categorias: Categoria[] = [
     ...CATEGORIAS_FIXAS.map((cat) => buckets.get(cat.id)!).filter(
@@ -257,7 +314,7 @@ WHERE EMPRESA = ${emp}
       .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
   ].map((b) => ({
     id: b.id,
-    nome: b.nome.toLocaleLowerCase("pt-BR"),
+    nome: b.nome.charAt(0).toLocaleUpperCase("pt-BR") + b.nome.slice(1).toLocaleLowerCase("pt-BR"),
     produtos: b.produtos,
   }));
 
@@ -270,12 +327,13 @@ WHERE EMPRESA = ${emp}
 
   return {
     estabelecimento: {
-      nome: tenant.nome,
+      nome: empresaInfo.nome || tenant.nome,
       logoUrl: tenant.logoUrl,
       heroUrl: tenant.heroUrl,
       cor: tenant.cor,
-      cidade: tenant.cidade,
+      cidade: empresaInfo.endereco || tenant.cidade,
     },
     categorias,
   };
 }
+
