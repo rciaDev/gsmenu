@@ -7,7 +7,7 @@ import {
   clearCart,
   readCart,
   setCartLineQty,
-  setCartObsGeral,
+  // setCartObsGeral, // Observação geral — UI ocultada
   type CartLine,
 } from "@/lib/cart-storage";
 
@@ -73,10 +73,11 @@ export function SacolaClient({
     sync();
   }
 
-  function changeObs(value: string) {
-    setObsGeral(value);
-    setCartObsGeral(tenantSlug, mesa, value);
-  }
+  // Observação geral — UI ocultada por enquanto
+  // function changeObs(value: string) {
+  //   setObsGeral(value);
+  //   setCartObsGeral(tenantSlug, mesa, value);
+  // }
 
   function enviarPedido() {
     setErro(null);
@@ -226,6 +227,7 @@ export function SacolaClient({
               ))}
             </ul>
 
+            {/* Observação geral — oculto por enquanto
             <label className="mt-6 block">
               <span className="mb-1 block text-sm text-[var(--muted)]">
                 Observação geral
@@ -238,6 +240,7 @@ export function SacolaClient({
                 placeholder="Ex.: entregar tudo junto…"
               />
             </label>
+            */}
 
             {erro && <p className="mt-3 text-sm text-red-700">{erro}</p>}
 

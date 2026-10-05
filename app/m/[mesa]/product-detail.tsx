@@ -146,65 +146,68 @@ export function ProductDetail({ produto, onClose, onAdd }: Props) {
             aria-hidden
           />
 
-          <div className="bg-[var(--surface)] px-5 pb-28 pt-2">
-            <h4 className="text-base font-semibold text-[var(--ink)]">
-              Observações
-            </h4>
-            <div className="relative mt-3">
-              <textarea
-                value={obs}
-                maxLength={OBS_MAX}
-                rows={4}
-                onChange={(e) => setObs(e.target.value.slice(0, OBS_MAX))}
-                placeholder="Digite as observações aqui..."
-                className="w-full resize-none rounded-xl border border-black/10 bg-white px-4 py-3 pb-8 text-sm text-[var(--ink)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/30"
-              />
-              <span className="pointer-events-none absolute bottom-3 right-3 text-xs text-[var(--muted)]">
-                {obs.length}/{OBS_MAX}
-              </span>
-            </div>
-            <p className="mt-3 text-xs leading-relaxed text-[var(--muted)]">
-              Converse diretamente com o estabelecimento caso queira modificar
-              algum item. Neste campo não são aceitas modificações que podem
-              gerar cobrança adicional.
-            </p>
-          </div>
-        </div>
 
-        <footer className="shrink-0 border-t border-black/5 bg-white px-4 py-3 safe-pb">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 rounded-xl bg-black/[0.04] p-1">
+
+            <div className="bg-[var(--surface)] px-5 pb-28 pt-2">
+              <h4 className="text-base font-semibold text-[var(--ink)]">
+                Observações
+              </h4>
+              <div className="relative mt-3">
+                <textarea
+                  value={obs}
+                  maxLength={OBS_MAX}
+                  rows={4}
+                  onChange={(e) => setObs(e.target.value.slice(0, OBS_MAX))}
+                  placeholder="Digite as observações aqui..."
+                  className="w-full resize-none rounded-xl border border-black/10 bg-white px-4 py-3 pb-8 text-sm text-[var(--ink)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/30"
+                />
+                <span className="pointer-events-none absolute bottom-3 right-3 text-xs text-[var(--muted)]">
+                  {obs.length}/{OBS_MAX}
+                </span>
+              </div>
+              <p className="mt-3 text-xs leading-relaxed text-[var(--muted)]">
+                Converse diretamente com o estabelecimento caso queira modificar
+                algum item. Neste campo não são aceitas modificações que podem
+                gerar cobrança adicional.
+              </p>
+            </div>
+          </div>
+
+          <footer className="shrink-0 border-t border-black/5 bg-white px-4 py-3 safe-pb">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 rounded-xl bg-black/[0.04] p-1">
+                <button
+                  type="button"
+                  aria-label="Diminuir quantidade"
+                  disabled={qtd <= 1}
+                  onClick={() => setQtd((n) => Math.max(1, n - 1))}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-xl font-medium text-[var(--ink)] shadow-sm disabled:opacity-40"
+                >
+                  −
+                </button>
+                <span className="w-8 text-center text-base font-semibold tabular-nums">
+                  {qtd}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Aumentar quantidade"
+                  onClick={() => setQtd((n) => n + 1)}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--ink)] text-xl font-medium text-white"
+                >
+                  +
+                </button>
+              </div>
               <button
                 type="button"
-                aria-label="Diminuir quantidade"
-                disabled={qtd <= 1}
-                onClick={() => setQtd((n) => Math.max(1, n - 1))}
-                className="flex h-11 w-11 items-center justify-center rounded-lg bg-white text-xl font-medium text-[var(--ink)] shadow-sm disabled:opacity-40"
+                onClick={() => onAdd(produto, qtd, obs.trim())}
+                className="flex flex-1 items-center justify-center rounded-xl bg-[var(--ink)] px-4 py-3.5 text-sm font-semibold text-white transition hover:brightness-110"
               >
-                −
-              </button>
-              <span className="w-8 text-center text-base font-semibold tabular-nums">
-                {qtd}
-              </span>
-              <button
-                type="button"
-                aria-label="Aumentar quantidade"
-                onClick={() => setQtd((n) => n + 1)}
-                className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--ink)] text-xl font-medium text-white"
-              >
-                +
+                Adicionar {formatBRL(total)}
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => onAdd(produto, qtd, obs.trim())}
-              className="flex flex-1 items-center justify-center rounded-xl bg-[var(--ink)] px-4 py-3.5 text-sm font-semibold text-white transition hover:brightness-110"
-            >
-              Adicionar {formatBRL(total)}
-            </button>
-          </div>
         </footer>
       </div>
     </div>
   );
 }
+
