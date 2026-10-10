@@ -10,6 +10,7 @@ import {
   PanelCard,
   PrimaryButton,
 } from "@/app/painel/_components/ui";
+import { Fredericka_the_Great, Libre_Caslon_Text } from "next/font/google";
 
 type Config = {
   nome: string;
@@ -75,6 +76,7 @@ export default function GestaoPage() {
     }, 2500);
   }
 
+
   async function uploadImage(
     endpoint: "/api/painel/logo" | "/api/painel/hero",
     file: File | null,
@@ -103,6 +105,7 @@ export default function GestaoPage() {
     );
   }
 
+
   return (
     <div>
       <PageHeader
@@ -115,11 +118,13 @@ export default function GestaoPage() {
         }
       />
 
+
       {feedback && (
         <div className="mb-4 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
           {feedback}
         </div>
       )}
+
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <PanelCard className="flex flex-col gap-5">
@@ -206,6 +211,8 @@ export default function GestaoPage() {
             </div>
           </PanelCard>
 
+
+
           <PanelCard>
             <h2 className="font-display text-lg font-semibold">
               Imagem de fundo
@@ -291,3 +298,4 @@ export default function GestaoPage() {
     </div>
   );
 }
+
