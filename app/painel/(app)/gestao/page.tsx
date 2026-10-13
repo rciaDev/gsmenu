@@ -127,7 +127,7 @@ export default function GestaoPage() {
 
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <PanelCard className="flex flex-col gap-5">
+        {/* <PanelCard className="flex flex-col gap-5">
           <h2 className="font-display text-lg font-semibold">Estabelecimento</h2>
           <Field label="Nome">
             <input
@@ -175,7 +175,7 @@ export default function GestaoPage() {
               />
             </div>
           </Field>
-        </PanelCard>
+        </PanelCard> */}
 
         <div className="flex flex-col gap-6">
           <PanelCard>

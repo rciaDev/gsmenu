@@ -47,9 +47,8 @@ export function PainelShell({ children }: { children: React.ReactNode }) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-black/8 bg-[var(--painel-sidebar)] transition-transform lg:static lg:translate-x-0 ${
-          navOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-black/8 bg-[var(--painel-sidebar)] transition-transform lg:static lg:translate-x-0 ${navOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="border-b border-black/8 px-5 py-5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
@@ -77,11 +76,10 @@ export function PainelShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setNavOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                  ativa
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${ativa
                     ? "bg-[var(--accent)] text-white"
                     : "text-[var(--ink)] hover:bg-black/[0.04]"
-                }`}
+                  }`}
               >
                 <Icon />
                 {item.label}

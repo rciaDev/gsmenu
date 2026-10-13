@@ -77,10 +77,6 @@ export default function PainelHomePage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         {[
           { label: "Mesas", value: mesas == null ? "…" : String(mesas) },
-          {
-            label: "Pedidos hoje",
-            value: pedidosHoje == null ? "…" : String(pedidosHoje),
-          },
           { label: "Status", value: "Online" },
         ].map((stat) => (
           <PanelCard key={stat.label}>
@@ -108,3 +104,4 @@ export default function PainelHomePage() {
     </div>
   );
 }
+

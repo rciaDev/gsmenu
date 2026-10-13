@@ -277,4 +277,3 @@ export function ProductDetail({ produto, onClose, onAdd }: Props) {
   );
 }
 
-

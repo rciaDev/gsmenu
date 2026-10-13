@@ -62,7 +62,7 @@ export default function CardapioPainelPage() {
     <div>
       <PageHeader
         title="Cardápio"
-        description="Produtos com LISTASITE = S, agrupados nas categorias fixas (Lanches, Pizza, Água, Refri, Cerveja, Whisky, Porções)."
+        description="Categorias fixas do cardápio digital (Lanches, Pizza, Água, Refri, Cerveja, Whisky, Porções)."
         actions={
           <>
             <GhostButton onClick={load} disabled={loading}>
